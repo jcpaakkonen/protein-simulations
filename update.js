@@ -136,7 +136,7 @@ function update(recalculate)
 			}
 			else // total ligand
 			{
-				for(h = -10; h <= 0; h += 1/32)
+				for(h = decadeshift - 10; h <= decadeshift; h += 1/32)
 				{
 					c = Math.pow(10, h);
 					cd = calculate_ligand_total(E_0, c, K_D).d;
@@ -155,8 +155,8 @@ function update(recalculate)
 			
 			if(scale_absolute)
 			{
-				ymin = -12;
-				ymax = 0;
+				ymin = decadeshift - 12;
+				ymax = decadeshift;
 				yaxistype = axistype_log;
 			}
 			else
@@ -219,8 +219,8 @@ function update(recalculate)
 			}
 			else
 			{
-				xmin = -10;
-				xmax = 0;
+				xmin = decadeshift - 10;
+				xmax = decadeshift;
 				xaxistype = axistype_log;
 				
 				if(Math.log10(S_0) >= xmin && Math.log10(S_0) <= xmax)
@@ -301,7 +301,7 @@ function update(recalculate)
 			}
 			else // total protein
 			{
-				for(h = -10; h <= 0; h += 1/32)
+				for(h = decadeshift - 10; h <= decadeshift; h += 1/32)
 				{
 					c = Math.pow(10, h);
 					cd = calculate_homodimer(c, K_D).d;
@@ -322,8 +322,8 @@ function update(recalculate)
 			
 			if(scale_absolute)
 			{
-				ymin = -12;
-				ymax = 0;
+				ymin = decadeshift - 12;
+				ymax = decadeshift;
 				yaxistype = axistype_log;
 			}
 			else
@@ -372,8 +372,8 @@ function update(recalculate)
 			}
 			else
 			{
-				xmin = -10;
-				xmax = 0;
+				xmin = decadeshift - 10;
+				xmax = decadeshift;
 				xaxistype = axistype_log;
 				
 				if(Math.log10(E_0) >= xmin && Math.log10(E_0) <= xmax)
@@ -446,7 +446,7 @@ function update(recalculate)
 			else
 				colours[5] = colour5;
 			
-			for(h = -10; h <= 0; h += 1/32)
+			for(h = decadeshift - 10; h <= decadeshift; h += 1/32)
 			{
 				c = Math.pow(10, h);
 				
@@ -471,14 +471,14 @@ function update(recalculate)
 				});
 			}
 			
-			xmin = -10;
-			xmax = 0;
+			xmin = decadeshift - 10;
+			xmax = decadeshift;
 			xaxistype = axistype_log;
 			
 			if(scale_absolute)
 			{
-				ymin = -10;
-				ymax = 0;
+				ymin = decadeshift - 12;
+				ymax = decadeshift;
 				yaxistype = axistype_log;
 			}
 			else
@@ -659,8 +659,8 @@ function update(recalculate)
 				
 				if(scale_absolute === 1)
 				{
-					ymin = -10;
-					ymax = 0;
+					ymin = decadeshift - 12;
+					ymax = decadeshift;
 					yaxistype = axistype_log;
 				}
 				else if(scale_absolute === 2)
@@ -718,13 +718,13 @@ function update(recalculate)
 			}
 			else
 			{
-				xmin = -10;
-				xmax = 0;
+				xmin = decadeshift - 10;
+				xmax = decadeshift;
 				xaxistype = axistype_log;
 				
 				labels[5] = "\uEEECc\uEEEAL";
 				
-				for(h = -10; h <= 0; h += 1/32)
+				for(h = decadeshift - 10; h <= decadeshift; h += 1/32)
 				{
 					c = Math.pow(10, h);
 					cd = calculate_ligands(c, Q_0, S_0, K_D, K_D2).d;
@@ -764,8 +764,8 @@ function update(recalculate)
 				
 				if(scale_absolute === 1)
 				{
-					ymin = -10;
-					ymax = 0;
+					ymin = decadeshift - 12;
+					ymax = decadeshift;
 					yaxistype = axistype_log;
 				}
 				else if(scale_absolute === 2)

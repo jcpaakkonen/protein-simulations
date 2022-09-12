@@ -158,6 +158,8 @@ function calculate_lsf()
 	
 	var calcmode;
 	
+	var logresid = extmode && document.getElementById("ext_calcmode_log").checked;
+	
 	for(i = 1; i <= 3; i++)
 	{
 		var ele = document.getElementById("calcmode" + i);
@@ -391,7 +393,7 @@ function calculate_lsf()
 						};
 					}
 					
-					var srsum = sum_squared_residuals(datapoints, theor, false /* scale_absolute === 1 */);
+					var srsum = sum_squared_residuals(datapoints, theor, logresid);
 					
 					if(srsum < srsum_min)
 					{

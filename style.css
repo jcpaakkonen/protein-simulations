@@ -202,3 +202,19 @@ input:disabled + span
 	user-select: none;
 	cursor: crosshair;
 }
+
+#ext_dsrow, #ext_lrrow, #ext_lrbr
+{
+	display: none;
+}
+
+#ext_dsinput
+{
+	width: 4em;
+}
+
+.ext_codeword
+{
+	font-family: monospace;
+	font-weight: bold;
+}

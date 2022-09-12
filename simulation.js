@@ -78,11 +78,8 @@ var value_digits = newdecadescale ? 1 : 2;
 var svg_xmlns = "http://www.w3.org/2000/svg";
 var xml_xmlns = "http://www.w3.org/XML/1998/namespace";
 
-var pages = [];
-pages[appmode_ligands]   = {title: "Competing ligands simulation",        link: "ligands.htm"   };
-pages[appmode_receptors] = {title: "Competing receptors simulation",      link: "receptors.htm" };
-pages[appmode_ligand]    = {title: "Ligand binding simulation",           link: "ligand.htm"    };
-pages[appmode_homodimer] = {title: "Protein homodimerisation simulation", link: "homodimer.htm" };
+var decadeshift = 0;
+var extmode = false;
 
 function preinit(mode)
 {
@@ -94,7 +91,39 @@ function preinit(mode)
 	var first = true;
 	var i;
 	
+	var qm = window.location.href.lastIndexOf("?");
+	
+	if(qm >= 0)
+	{
+		var old = qm;
+		var amp;
+		
+		do
+		{
+			amp = window.location.href.indexOf("&", old + 1);
+			var ss = window.location.href.substring(old + 1, amp >= 0 ? amp : undefined);
+			if(ss === "ext") extmode = true;
+			old = amp;
+		}
+		while(amp >= 0);
+	}
+	
+	if(extmode)
+	{
+		var links = document.getElementById("linkarea").getElementsByTagName("a");
+		for(i = 0; i < links.length; i++) links[i].href += "?ext";
+		
+		document.getElementById("ext_extmessage").style.display = "none";
+	}
+	
 	if(!(appmode >= 0)) return;
+	
+	if(extmode)
+	{
+		document.getElementById("ext_dsrow").style.display = "table-row";
+		document.getElementById("ext_lrrow").style.display = "initial";
+		document.getElementById("ext_lrbr").style.display = "initial";
+	}
 	
 	var figure_div = document.getElementById("figure_div");
 	
@@ -161,6 +190,12 @@ function init()
 	
 	var databox = document.getElementById("databox");
 	if(databox) databox.addEventListener("blur", data_changed);
+	
+	if(extmode)
+	{
+		document.getElementById("ext_dsinput").addEventListener("input", decadeshift_changed);
+		document.getElementById("ext_dsinput").addEventListener("blur", decadeshift_blur);
+	}
 	
 	var calcbutton = document.getElementById("calcbutton");
 	if(calcbutton) calcbutton.addEventListener("click",
@@ -255,6 +290,39 @@ function valueinput_blur(num, keycode)
 		input_ele.style.display = "none";
 		input_ele.blur();
 	}
+}
+
+function decadeshift_changed()
+{
+	var ext_dsinput = document.getElementById("ext_dsinput");
+	var d = Number(ext_dsinput.value);
+	var i;
+	
+	if(ext_dsinput.value !== "" && Number.isInteger(d) && d >= Number(ext_dsinput.min) && d <= Number(ext_dsinput.max))
+	{
+		ext_dsinput.style.color = "initial";
+		decadeshift = d;
+		
+		var sliders = document.getElementsByClassName("slider");
+		
+		for(i = 0; i < sliders.length; i++)
+		{
+			slider_input(Number(sliders[i].id.substr(6)), true);
+		}
+		
+		update();
+	}
+	else
+	{
+		ext_dsinput.style.color = "red";
+	}
+}
+
+function decadeshift_blur()
+{
+	var ext_dsinput = document.getElementById("ext_dsinput");
+	ext_dsinput.style.color = "initial";
+	ext_dsinput.value = decadeshift;
 }
 
 function render_text_svg(ele, str)
@@ -408,9 +476,9 @@ var decadetable = [
 function expval(v, e, minexp, maxexp)
 {
 	if(newdecadescale)
-		return decadetable[v % 30] * Math.pow(10, Math.floor(v / 30) - 10);
+		return decadetable[v % 30] * Math.pow(10, Math.floor(v / 30) - 10 + decadeshift);
 	else
-		return Math.pow(e, minexp + v * (maxexp - minexp) / 240);
+		return Math.pow(e, minexp + v * (maxexp - minexp) / 240 + decadeshift);
 }
 
 var expparams = [
