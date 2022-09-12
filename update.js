@@ -477,7 +477,7 @@ function update(recalculate)
 			
 			if(scale_absolute)
 			{
-				ymin = decadeshift - 12;
+				ymin = decadeshift - (extmode ? 12 : 10);
 				ymax = decadeshift;
 				yaxistype = axistype_log;
 			}
@@ -659,7 +659,7 @@ function update(recalculate)
 				
 				if(scale_absolute === 1)
 				{
-					ymin = decadeshift - 12;
+					ymin = decadeshift - (extmode ? 12 : 10);
 					ymax = decadeshift;
 					yaxistype = axistype_log;
 				}
@@ -764,7 +764,7 @@ function update(recalculate)
 				
 				if(scale_absolute === 1)
 				{
-					ymin = decadeshift - 12;
+					ymin = decadeshift - (extmode ? 12 : 10);
 					ymax = decadeshift;
 					yaxistype = axistype_log;
 				}
