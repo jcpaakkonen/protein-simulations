@@ -28,7 +28,7 @@
 "use strict";
 
 // This controls the scales of the slider values.
-// Adjust the selector .valuecol (lines 40–44) of style.css accordingly.
+// Adjust the selector .valuecol (lines 40–49) of style.css accordingly.
 // false: logarithmic scale, used in development versions and my PhD thesis
 // true: more humanly convenient scale, used in the final version
 var newdecadescale = true;
@@ -155,6 +155,8 @@ function init()
 	
 	if(!(appmode >= 0)) return;
 	
+	if(extmode) decadeshift_changed(true);
+	
 	var sliders = document.getElementsByClassName("slider");
 	
 	for(i = 0; i < sliders.length; i++)
@@ -193,7 +195,7 @@ function init()
 	
 	if(extmode)
 	{
-		document.getElementById("ext_dsinput").addEventListener("input", decadeshift_changed);
+		document.getElementById("ext_dsinput").addEventListener("input", function(){decadeshift_changed()});
 		document.getElementById("ext_dsinput").addEventListener("blur", decadeshift_blur);
 	}
 	
@@ -292,7 +294,7 @@ function valueinput_blur(num, keycode)
 	}
 }
 
-function decadeshift_changed()
+function decadeshift_changed(noupdate)
 {
 	var ext_dsinput = document.getElementById("ext_dsinput");
 	var d = Number(ext_dsinput.value);
@@ -303,14 +305,17 @@ function decadeshift_changed()
 		ext_dsinput.style.color = "initial";
 		decadeshift = d;
 		
-		var sliders = document.getElementsByClassName("slider");
-		
-		for(i = 0; i < sliders.length; i++)
+		if(!noupdate)
 		{
-			slider_input(Number(sliders[i].id.substr(6)), true);
+			var sliders = document.getElementsByClassName("slider");
+			
+			for(i = 0; i < sliders.length; i++)
+			{
+				slider_input(Number(sliders[i].id.substr(6)), true);
+			}
+			
+			update();
 		}
-		
-		update();
 	}
 	else
 	{

@@ -208,6 +208,11 @@ input:disabled + span
 	display: none;
 }
 
+#ext_dsrow td
+{
+	padding: 0.5ex 0;
+}
+
 #ext_dsinput
 {
 	width: 4em;
