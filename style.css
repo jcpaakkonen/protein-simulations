@@ -203,7 +203,7 @@ input:disabled + span
 	cursor: crosshair;
 }
 
-#ext_dsrow, #ext_lrrow, #ext_lrbr
+#ext_dsrow, #ext_pisrow, #ext_lrrow, #ext_pisbr, #ext_lrbr
 {
 	display: none;
 }

@@ -103,7 +103,8 @@ function calculate_ligands(c_A, c_B, c_C, K_D, K_D2)
 
 function sum_squared_residuals(arr1, arr2, logarithmic)
 {
-	var i, r, sum = 0;
+	var i, r;
+	var result = { residuals: [], sum: 0 };
 	
 	if(arr1.length !== arr2.length) return NaN;
 	
@@ -112,8 +113,9 @@ function sum_squared_residuals(arr1, arr2, logarithmic)
 		for(i = 0; i < arr1.length; i++)
 		{
 			// r = Math.log(arr1[i].y) - Math.log(arr2[i].y);
-			r = Math.log(arr1[i].y / arr2[i].y);
-			sum += r * r;
+			r = 1e-5 * Math.log(arr1[i].y / arr2[i].y);
+			result.residuals.push(r);
+			result.sum += r * r;
 		}
 	}
 	else
@@ -121,11 +123,12 @@ function sum_squared_residuals(arr1, arr2, logarithmic)
 		for(i = 0; i < arr1.length; i++)
 		{
 			r = arr1[i].y - arr2[i].y;
-			sum += r * r;
+			result.residuals.push(r);
+			result.sum += r * r;
 		}
 	}
 	
-	return sum;
+	return result;
 }
 
 function calculate_lsf()
@@ -153,6 +156,7 @@ function calculate_lsf()
 	var k4min, k4max, k4step;
 	
 	var srsum_min;
+	var resid_min;
 	var i, j, n;
 	var co;
 	
@@ -160,7 +164,7 @@ function calculate_lsf()
 	
 	var logresid = extmode && document.getElementById("ext_calcmode_log").checked;
 	
-	for(i = 1; i <= 3; i++)
+	for(i = 1; i <= 4; i++)
 	{
 		var ele = document.getElementById("calcmode" + i);
 		
@@ -188,8 +192,8 @@ function calculate_lsf()
 			var kp = [];
 			var k = [];
 			var m = [];
-			var kp = [];
 			var fun;
+			var fitdata = {};
 			
 			function fun_ligand_free()
 			{
@@ -279,6 +283,12 @@ function calculate_lsf()
 				{
 					slider_indices.push(index);
 					sliders.push(s);
+					
+					// only in extmode
+					if(calcmode === 4 && !(s.ext_value))
+					{
+						s.ext_value = m[index];
+					}
 				}
 			}
 			
@@ -343,6 +353,13 @@ function calculate_lsf()
 								kmax[i] = Math.min(Number(sliders[i].max), Number(sliders[i].value) + 5);
 								kstep[i] = 1;
 								break;
+								
+							// extmode only
+							case 4:
+								kmin[i] = sliders[i].ext_value * 0.99;
+								kmax[i] = sliders[i].ext_value * 1.0101;
+								kstep[i] = sliders[i].ext_value * 0.001;
+								break;
 						}
 					}
 				}
@@ -366,15 +383,23 @@ function calculate_lsf()
 				var loop = true;
 				
 				srsum_min = Number.MAX_VALUE;
+				resid_min = undefined;
 				
 				while(loop)
 				{
 					for(i = 0; i < sliders.length; i++)
 					{
-						m[slider_indices[i]] = expval(k[i],
-							expparams[slider_indices[i]][0],
-							expparams[slider_indices[i]][1],
-							expparams[slider_indices[i]][2]);
+						if(calcmode === 4)
+						{
+							m[slider_indices[i]] = k[i];
+						}
+						else
+						{
+							m[slider_indices[i]] = expval(k[i],
+								expparams[slider_indices[i]][0],
+								expparams[slider_indices[i]][1],
+								expparams[slider_indices[i]][2]);
+						}
 					}
 					
 					for(i = 0; i < datapoints.length; i++)
@@ -393,11 +418,12 @@ function calculate_lsf()
 						};
 					}
 					
-					var srsum = sum_squared_residuals(datapoints, theor, logresid);
+					fitdata = sum_squared_residuals(datapoints, theor, logresid);
 					
-					if(srsum < srsum_min)
+					if(fitdata.sum < srsum_min)
 					{
-						srsum_min = srsum;
+						srsum_min = fitdata.sum;
+						resid_min = fitdata.residuals;
 						kp = k.slice();
 					}
 					
@@ -427,13 +453,35 @@ function calculate_lsf()
 				}
 			}
 			
-			for(i = 0; i < sliders.length; i++)
+			if(calcmode === 4)
 			{
-				sliders[i].value = kp[i].toString();
-				slider_input(slider_indices[i], true);
+				for(i = 0; i < sliders.length; i++)
+				{
+					if(Math.abs(kp[i] - sliders[i].ext_value) > kstep[i] * 0.1)
+					{
+						equal_to_initial = false;
+						break;
+					}
+				}
 			}
 			
-			if(!equal_to_initial) // only in calcmode 3
+			if(calcmode < 4)
+			{
+				for(i = 0; i < sliders.length; i++)
+				{
+					sliders[i].value = kp[i].toString();
+					slider_input(slider_indices[i], true);
+				}
+			}
+			else
+			{
+				for(i = 0; i < sliders.length; i++)
+				{
+					sliders[i].ext_value = kp[i];
+				}
+			}
+			
+			if(!equal_to_initial) // only in calcmode 3 and 4
 			{
 				calculate_lsf();
 				return;
@@ -445,6 +493,145 @@ function calculate_lsf()
 			{
 				label.innerHTML = "Calculation finished.";
 				label.style.color = "green";
+			}
+			
+			if(calcmode === 4)
+			{
+				let str = "";
+				
+				// https://octave.sourceforge.io/optim/function/nlinfit.html
+				// https://se.mathworks.com/help/stats/nlinfit.html
+				
+				var covb;
+				
+				if(resid_min.length - sliders.length > 0)
+				{
+					// calculate mean square error (mse)
+					
+					let mse = srsum_min / (resid_min.length - sliders.length);
+					
+					// calculate jacobian matrix J
+					
+					let J_rows = resid_min.length;
+					let J_cols = sliders.length;
+					let J = new Array(J_rows * J_cols);
+					
+					for(i = 0; i < sliders.length; i++)
+					{
+						m[slider_indices[i]] = kp[i];
+					}
+					
+					for(i = 0; i < datapoints.length; i++)
+					{
+						for(j = 0; j < sliders.length; j++)
+						{
+							m[slider_indices[j]] -= sliders[j].ext_value * 0.001;
+							var cd1 = fun();
+							
+							m[slider_indices[j]] += sliders[j].ext_value * 0.002;
+							var cd2 = fun();
+							
+							m[slider_indices[j]] -= sliders[j].ext_value * 0.001;
+							
+							var divisor1, divisor2;
+							
+							if(scale_absolute || appmode === appmode_receptors)
+								divisor1 = 1;
+							else
+								divisor1 = cd1.d.reduce(function(t,v,i){ return t + v * cd1.m[i]; }, 0);
+							
+							if(scale_absolute || appmode === appmode_receptors)
+								divisor2 = 1;
+							else
+								divisor2 = cd2.d.reduce(function(t,v,i){ return t + v * cd2.m[i]; }, 0);
+							
+							let y1 = cd1.d[co] / divisor1 * (scale_absolute || appmode === appmode_receptors ? 1 : cd1.m[co]);
+							let y2 = cd2.d[co] / divisor2 * (scale_absolute || appmode === appmode_receptors ? 1 : cd2.m[co]);
+							
+							if(logresid)
+								J[i * J_cols + j] = 1e-5 * Math.log(y2 / y1) / (sliders[j].ext_value * 0.002);
+							else
+								J[i * J_cols + j] = (y2 - y1) / (sliders[j].ext_value * 0.002);
+						}
+					}
+					
+					// calculate J'*J, make an augmented matrix for Gauss-Jordan
+					
+					let JJ = new Array(J_cols * J_cols * 2);
+					
+					for(j = 0; j < J_cols; j++)
+					for(i = 0; i < J_cols; i++)
+					{
+						let t = 0;
+						
+						for(n = 0; n < J_rows; n++)
+						{
+							t += J[n * J_cols + i] * J[n * J_cols + j];
+						}
+						
+						JJ[j * 2 * J_cols + i] = t;
+						JJ[j * 2 * J_cols + i + J_cols] = (i == j) ? 1 : 0;
+					}
+					
+					// invert J'*J using Gauss-Jordan elimination
+					// (this is surprisingly simple, though it could be written to be clearer)
+					
+					function subtract_row(r1, r2, f)
+					{
+						let i;
+						for(i = 0; i < 2 * J_cols; i++)
+						{
+							JJ[r1 * 2 * J_cols + i] -= f * JJ[r2 * 2 * J_cols + i];
+						}
+					}
+					
+					for(i = 0; i < J_cols; i++)
+					{
+						for(j = i; j < J_cols; j++)
+						{
+							subtract_row(j, i, (JJ[j * 2 * J_cols + i] - (i == j ? 1 : 0)) / JJ[i * 2 * J_cols + i]);
+						}
+					}
+					
+					for(i = J_cols - 1; i >= 0; i--)
+					{
+						for(j = i - 1; j >= 0; j--)
+						{
+							subtract_row(j, i, JJ[j * 2 * J_cols + i] / JJ[i * 2 * J_cols + i]);
+						}
+					}
+					
+					// calculate the variance-covariance matrix
+					
+					covb = new Array(J_cols * J_cols);
+					
+					for(j = 0; j < J_cols; j++)
+					for(i = 0; i < J_cols; i++)
+					{
+						covb[j * J_cols + i] = JJ[j * 2 * J_cols + i + J_cols] * mse;
+					}
+					
+					/*
+					console.log(J);
+					console.log(JJ);
+					console.log(covb);
+					*/
+				}
+				
+				for(i = 0; i < sliders.length; i++)
+				{
+					if(i > 0) str += "\n\n";
+					
+					let stdev = covb ? Math.sqrt(covb[i * sliders.length + i]) : NaN;
+					let uncer = stdev * ttable[resid_min.length - sliders.length];
+					
+					str += "Parameter " + document.getElementById("fixlabel" + slider_indices[i]).innerHTML.substr(6) +
+						"\n -> value:  " + sliders[i].ext_value.toExponential(3) + 
+						"\n -> standard error:  " + stdev.toExponential(3) + " (" + (100 * stdev / sliders[i].ext_value).toFixed(2) + "%)" + 
+						"\n -> uncertainty (95%, n=" + (resid_min.length - sliders.length) + "):  " + uncer.toExponential(3) + " (" + (100 * uncer / sliders[i].ext_value).toFixed(2) + "%)";
+				}
+				
+				alert(str);
 			}
 			
 			update();
@@ -551,3 +738,109 @@ function solve_cubic_bisection(q1, q2, q3, q4, amin, amax)
 		if(Math.abs(xmax / xmin - 1) < 1e-3) return xmid;
 	}
 }
+
+var ttable = [
+	
+	NaN,
+	1.270620473617469e+01,
+	4.302652729749463e+00,
+	3.182446305283709e+00,
+	2.776445105197794e+00,
+	2.570581835636314e+00,
+	2.446911851144970e+00,
+	2.364624251592785e+00,
+	2.306004135204166e+00,
+	2.262157162798205e+00,
+	2.228138851986273e+00,
+	2.200985160091639e+00,
+	2.178812829667228e+00,
+	2.160368656462792e+00,
+	2.144786687917803e+00,
+	2.131449545559774e+00,
+	2.119905299221254e+00,
+	2.109815577833317e+00,
+	2.100922040241038e+00,
+	2.093024054408310e+00,
+	2.085963447265863e+00,
+	2.079613844727683e+00,
+	2.073873067904023e+00,
+	2.068657610419050e+00,
+	2.063898561628027e+00,
+	2.059538552753296e+00,
+	2.055529438642872e+00,
+	2.051830516480284e+00,
+	2.048407141795246e+00,
+	2.045229642132703e+00,
+	2.042272456301240e+00,
+	2.039513446396408e+00,
+	2.036933343460101e+00,
+	2.034515297449341e+00,
+	2.032244509317717e+00,
+	2.030107928250342e+00,
+	2.028094000980448e+00,
+	2.026192463029109e+00,
+	2.024394163911968e+00,
+	2.022690920036764e+00,
+	2.021075390306271e+00,
+	2.019540970441377e+00,
+	2.018081702818444e+00,
+	2.016692199227827e+00,
+	2.015367574443758e+00,
+	2.014103388880848e+00,
+	2.012895598919430e+00,
+	2.011740513729764e+00,
+	2.010634757624231e+00,
+	2.009575237129236e+00,
+	2.008559112100763e+00,
+	2.007583770315840e+00,
+	2.006646805061683e+00,
+	2.005745995317873e+00,
+	2.004879288188058e+00,
+	2.004044783289142e+00,
+	2.003240718847876e+00,
+	2.002465459291010e+00,
+	2.001717484145235e+00,
+	2.000995378088269e+00,
+	2.000297822014254e+00,
+	1.999623584994947e+00,
+	1.998971517033372e+00,
+	1.998340542520745e+00,
+	1.997729654317695e+00,
+	1.997137908392001e+00,
+	1.996564418952320e+00,
+	1.996008354025300e+00,
+	1.995468931429846e+00,
+	1.994945415107224e+00,
+	1.994437111771185e+00,
+	1.993943367845627e+00,
+	1.993463566661872e+00,
+	1.992997125889857e+00,
+	1.992543495180934e+00,
+	1.992102154002241e+00,
+	1.991672609644666e+00,
+	1.991254395388372e+00,
+	1.990847068811696e+00,
+	1.990450210230133e+00,
+	1.990063421254443e+00,
+	1.989686323456913e+00,
+	1.989318557136561e+00,
+	1.988959780175168e+00,
+	1.988609666975715e+00,
+	1.988267907477211e+00,
+	1.987934206239018e+00,
+	1.987608281589070e+00,
+	1.987289864831177e+00,
+	1.986978699506275e+00,
+	1.986674540703772e+00,
+	1.986377154418620e+00,
+	1.986086316951119e+00,
+	1.985801814345822e+00,
+	1.985523441866611e+00,
+	1.985251003505508e+00,
+	1.984984311522445e+00,
+	1.984723186013984e+00,
+	1.984467454508495e+00,
+	1.984216951586394e+00,
+	1.983971518523567e+00
+	
+];

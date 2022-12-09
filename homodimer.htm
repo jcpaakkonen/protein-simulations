@@ -136,7 +136,9 @@
 									<td colspan="2">Calculation method:<br />
 										<label><input type="radio" name="calcmode" id="calcmode1" checked />&nbsp;Two-pass search (fast)</label><br />
 										<label><input type="radio" name="calcmode" id="calcmode2"         />&nbsp;Single-pass search (slow)</label><br />
-										<label><input type="radio" name="calcmode" id="calcmode3"         />&nbsp;Iterative search (converges from the given values)</label><br id="ext_lrbr" />
+										<label><input type="radio" name="calcmode" id="calcmode3"         />&nbsp;Iterative search (converges from the given values)</label><br id="ext_pisbr" />
+										
+										<label id="ext_pisrow"><input type="radio" name="calcmode" id="calcmode4" />&nbsp;Precise iterative search (unfinished, may be unstable!)</label><br id="ext_lrbr" />
 										<label id="ext_lrrow"><input type="checkbox" id="ext_calcmode_log" />&nbsp;Logarithmic residuals</label>
 									</td>
 								</tr>
@@ -145,7 +147,7 @@
 										<label><input type="radio" name="calcoption" id="calcoption0" checked />&nbsp;[P<sub>2</sub>]</label><br />
 										<label><input type="radio" name="calcoption" id="calcoption1"         />&nbsp;[P]</label>
 									</td>
-									<td><input id="fixval7" class="fixval" type="checkbox" style="display:none" checked /></td>
+									<td><input id="fixval7" class="fixval" type="checkbox" style="display:none" checked /><span id="fixlabel7" style="display:none">&nbsp;<var>K</var><sub>D</sub></span></td>
 								</tr>
 							</table>
 						</td>

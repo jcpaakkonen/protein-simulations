@@ -123,6 +123,8 @@ function preinit(mode)
 		document.getElementById("ext_dsrow").style.display = "table-row";
 		document.getElementById("ext_lrrow").style.display = "initial";
 		document.getElementById("ext_lrbr").style.display = "initial";
+		document.getElementById("ext_pisrow").style.display = "initial";
+		document.getElementById("ext_pisbr").style.display = "initial";
 	}
 	
 	var figure_div = document.getElementById("figure_div");

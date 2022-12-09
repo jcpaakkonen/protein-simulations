@@ -167,7 +167,9 @@
 									<td colspan="2">Calculation method:<br />
 										<label><input type="radio" name="calcmode" id="calcmode1" checked />&nbsp;Two-pass search (fast)</label><br />
 										<label><input type="radio" name="calcmode" id="calcmode2"         />&nbsp;Single-pass search (slow)</label><br />
-										<label><input type="radio" name="calcmode" id="calcmode3"         />&nbsp;Iterative search (converges from the given values)</label><br id="ext_lrbr" />
+										<label><input type="radio" name="calcmode" id="calcmode3"         />&nbsp;Iterative search (converges from the given values)</label><br id="ext_pisbr" />
+										
+										<label id="ext_pisrow"><input type="radio" name="calcmode" id="calcmode4" />&nbsp;Precise iterative search (unfinished, may be unstable!)</label><br id="ext_lrbr" />
 										<label id="ext_lrrow"><input type="checkbox" id="ext_calcmode_log" />&nbsp;Logarithmic residuals</label>
 									</td>
 								</tr>
@@ -179,11 +181,11 @@
 									</td>
 									<td>
 										Free parameters:<br />
-										<label><input id="fixval5"  class="fixval" type="checkbox"          /><span>&nbsp;<var>c</var><sub>P</sub></span></label><br />
-										<label><input id="fixval10" class="fixval" type="checkbox" disabled /><span>&nbsp;<var>c</var><sub>L</sub></span></label><br />
-										<label><input id="fixval3"  class="fixval" type="checkbox"          /><span>&nbsp;<var>c</var><sub>L&prime;</sub></span></label><br />
-										<label><input id="fixval7"  class="fixval" type="checkbox"          /><span>&nbsp;<var>K</var><sub>D</sub></span></label><br />
-										<label><input id="fixval9"  class="fixval" type="checkbox"          /><span>&nbsp;<var>K</var><sub>D</sub>&prime;</span></label>
+										<label><input id="fixval5"  class="fixval" type="checkbox"          /><span id="fixlabel5">&nbsp;<var>c</var><sub>P</sub></span></label><br />
+										<label><input id="fixval10" class="fixval" type="checkbox" disabled /><span id="fixlabel10">&nbsp;<var>c</var><sub>L</sub></span></label><br />
+										<label><input id="fixval3"  class="fixval" type="checkbox"          /><span id="fixlabel3">&nbsp;<var>c</var><sub>L&prime;</sub></span></label><br />
+										<label><input id="fixval7"  class="fixval" type="checkbox"          /><span id="fixlabel7">&nbsp;<var>K</var><sub>D</sub></span></label><br />
+										<label><input id="fixval9"  class="fixval" type="checkbox"          /><span id="fixlabel9">&nbsp;<var>K</var><sub>D</sub>&prime;</span></label>
 									</td>
 								</tr>
 							</table>
