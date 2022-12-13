@@ -1324,6 +1324,26 @@ function update(recalculate)
 		svg_rect.setAttribute("height", cheight - ca_top - ca_height + 3);
 	}
 	
+	if(cwidth - ca_left - ca_width > 0)
+	{
+		ele_id = "svg_mask3";
+		var svg_rect = document.getElementById(ele_id);
+		
+		if(!svg_rect)
+		{
+			svg_rect = document.createElementNS(svg_xmlns, "rect");
+			svg_rect.id = ele_id;
+			svg_rect.style.fill = "white";
+			svg_rect.style.stroke = "none";
+			figure_overlaygroup.appendChild(svg_rect);
+		}
+		
+		svg_rect.setAttribute("x", 0);
+		svg_rect.setAttribute("y", 0);
+		svg_rect.setAttribute("width", ca_left);
+		svg_rect.setAttribute("height", cheight);
+	}
+	
 	ele_id = "svg_axisline";
 	var svg_axes = document.getElementById(ele_id);
 	

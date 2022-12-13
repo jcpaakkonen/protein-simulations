@@ -214,7 +214,7 @@ function init()
 			
 			// This is so that the label has time to change
 			// before the code enters a heavy calculation.
-			window.setTimeout(calculate_lsf, 100);
+			window.setTimeout(function(){calculate_lsf(); update();}, 100);
 		}
 	);
 	
@@ -472,6 +472,24 @@ function toggle_calcdiv()
 function replace_minus_signs(str)
 {
 	return str.replace(/\u002D/g, "\u2212");
+}
+
+function number_to_superscript(str)
+{
+	return str.replace(/\u002D/g, "\u207B").replace(/\u002B/g, "\u207A").replace(/\u0030/g, "\u2070").replace(/\u0031/g, "\u00B9").replace(/\u0032/g, "\u00B2").replace(/\u0033/g, "\u00B3").replace(/\u0034/g, "\u2074").replace(/\u0035/g, "\u2075").replace(/\u0036/g, "\u2076").replace(/\u0037/g, "\u2077").replace(/\u0038/g, "\u2078").replace(/\u0039/g, "\u2079");
+}
+
+function toFixed2(num, digits)
+{
+	if(digits >= 0)
+	{
+		return num.toFixed(digits);
+	}
+	else
+	{
+		let d = Math.pow(10, Math.max(digits, -Math.floor(Math.log10(num))));
+		return (Math.round(num * d) / d).toFixed(0);
+	}
 }
 
 var decadetable = [
