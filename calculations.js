@@ -1,6 +1,6 @@
 /*
 	PROTEIN THERMODYNAMICS SIMULATIONS
-	Copyright (C) 2021–2022 Johan Pääkkönen, Juha Rouvinen, University of Eastern Finland
+	Copyright (C) 2021–2023 Johan Pääkkönen, Juha Rouvinen, University of Eastern Finland
 	
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -660,11 +660,11 @@ function calculate_lsf()
 			}
 			
 			str += "Parameter " + document.getElementById("fixlabel" + slider_indices[i]).firstChild.innerHTML +
-				"\n\t\u2192 value:  " + sliders[i].ext_value.toExponential(3) + 
+				"\n\t\u2192 value:  " + format_exponential(sliders[i].ext_value.toExponential(3)) + 
 				(Number.isFinite(stdev) ?
-					"\n\t\u2192 standard error:  " + stdev.toExponential(3) + " (" + (100 * stdev / sliders[i].ext_value).toFixed(2) + "%)" + 
-					"\n\t\u2192 uncertainty (95%, n=" + (resid_min.length - sliders.length) + "):  " + uncer.toExponential(3) + " (" + (100 * uncer / sliders[i].ext_value).toFixed(2) + "%)" +
-					"\n\t\u2192 rounded: (" + value_str + " \u00B1 " + uncer_str + ") \u22C5 10" + number_to_superscript((rf1).toFixed(0))
+					"\n\t\u2192 standard error:  " + format_exponential(stdev.toExponential(3)) + " (" + (100 * stdev / sliders[i].ext_value).toFixed(2) + "%)" + 
+					"\n\t\u2192 uncertainty (95%, n=" + (resid_min.length - sliders.length) + "):  " + format_exponential(uncer.toExponential(3)) + " (" + (100 * uncer / sliders[i].ext_value).toFixed(2) + "%)" +
+					"\n\t\u2192 rounded:  " + format_exponential("(" + value_str + " \u00B1 " + uncer_str + ")e" + (rf1).toFixed(0))
 				: "");
 			
 			switch(slider_indices[i])
@@ -781,120 +781,39 @@ function solve_cubic_bisection(q1, q2, q3, q4, amin, amax)
 	}
 }
 
+function format_exponential(str)
+{
+	let epos = str.search(/e/i);
+	let exp = Number(str.substring(epos + 1));
+	
+	if(exp == 0)
+		if(str.charAt(0) === "(" && str.charAt(epos - 1) === ")")
+			return str.substring(1, epos - 1);
+		else
+			return str.substring(0, epos);
+	else
+		return str.substring(0, epos) + " \u22C5 10" + number_to_superscript((exp).toFixed(0));
+}
+
 function tinv_95(n)
 {
 	if(n < 0)
 		return NaN;
-	else if(n <= 100)
-		// first 100 accurate values from lookup table
+	else if(n < 20)
+		// first 19 accurate values from lookup table
 		return ttable[n];
 	else
 		// my custom approximation
-		// zero error at n=100 and n->infinity, negative when n>100
-		// maximum error about -4.6e-5 (-23 ppm) at n=487
-		return 1.959963984540054 + 2.536826336309221 * Math.pow(n, -1.011971592708683);
+		// error zero at n=20, (n≈54.3) and n→∞
+		//       positive when 20<n≤54
+		//       negative when n≥55
+		// maximum error about ±4.0×10⁻⁴ (±0.020%) at n=28 (+) and n=184 (-)
+		return 1.95996 + 2.82680 * Math.pow(n, -1.03834);
 }
 
 var ttable = [
-	Infinity,
-	12.70620473617469,
-	4.302652729749463,
-	3.182446305283709,
-	2.776445105197794,
-	2.570581835636314,
-	2.446911851144970,
-	2.364624251592785,
-	2.306004135204166,
-	2.262157162798205,
-	2.228138851986273,
-	2.200985160091639,
-	2.178812829667228,
-	2.160368656462792,
-	2.144786687917803,
-	2.131449545559774,
-	2.119905299221254,
-	2.109815577833317,
-	2.100922040241038,
-	2.093024054408310,
-	2.085963447265863,
-	2.079613844727683,
-	2.073873067904023,
-	2.068657610419050,
-	2.063898561628027,
-	2.059538552753296,
-	2.055529438642872,
-	2.051830516480284,
-	2.048407141795246,
-	2.045229642132703,
-	2.042272456301240,
-	2.039513446396408,
-	2.036933343460101,
-	2.034515297449341,
-	2.032244509317717,
-	2.030107928250342,
-	2.028094000980448,
-	2.026192463029109,
-	2.024394163911968,
-	2.022690920036764,
-	2.021075390306271,
-	2.019540970441377,
-	2.018081702818444,
-	2.016692199227827,
-	2.015367574443758,
-	2.014103388880848,
-	2.012895598919430,
-	2.011740513729764,
-	2.010634757624231,
-	2.009575237129236,
-	2.008559112100763,
-	2.007583770315840,
-	2.006646805061683,
-	2.005745995317873,
-	2.004879288188058,
-	2.004044783289142,
-	2.003240718847876,
-	2.002465459291010,
-	2.001717484145235,
-	2.000995378088269,
-	2.000297822014254,
-	1.999623584994947,
-	1.998971517033372,
-	1.998340542520745,
-	1.997729654317695,
-	1.997137908392001,
-	1.996564418952320,
-	1.996008354025300,
-	1.995468931429846,
-	1.994945415107224,
-	1.994437111771185,
-	1.993943367845627,
-	1.993463566661872,
-	1.992997125889857,
-	1.992543495180934,
-	1.992102154002241,
-	1.991672609644666,
-	1.991254395388372,
-	1.990847068811696,
-	1.990450210230133,
-	1.990063421254443,
-	1.989686323456913,
-	1.989318557136561,
-	1.988959780175168,
-	1.988609666975715,
-	1.988267907477211,
-	1.987934206239018,
-	1.987608281589070,
-	1.987289864831177,
-	1.986978699506275,
-	1.986674540703772,
-	1.986377154418620,
-	1.986086316951119,
-	1.985801814345822,
-	1.985523441866611,
-	1.985251003505508,
-	1.984984311522445,
-	1.984723186013984,
-	1.984467454508495,
-	1.984216951586394,
-	1.983971518523567
+	Infinity, 12.70620, 4.30265, 3.18245, 2.77645,
+	2.57058,   2.44691, 2.36462, 2.30600, 2.26216,
+	2.22814,   2.20099, 2.17881, 2.16037, 2.14479,
+	2.13145,   2.11991, 2.10982, 2.10092, 2.09302
 ];

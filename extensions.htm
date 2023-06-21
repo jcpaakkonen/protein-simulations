@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		
+<!--
+	PROTEIN THERMODYNAMICS SIMULATIONS
+	Copyright (C) 2021–2023 Johan Pääkkönen, Juha Rouvinen, University of Eastern Finland
+	
+	This program is free software; you can redistribute it and/or
+	modify it under the terms of the GNU General Public License
+	as published by the Free Software Foundation; either version 2
+	of the License, or (at your option) any later version.
+	
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+	
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+-->
+
+<!--
+	The GNU General Public License, version 2, is available at:
+	(1) the file LICENSE in this folder
+	(2) https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+-->
+
+<!--
+	If you use this in your own research, please cite our paper: https://doi.org/10.1021/acsomega.2c00560
+-->
+		
+		<title>Extra features</title>
+		<link rel="stylesheet" type="text/css" href="style.css" />
+		<!-- <script src="simulation.js"></script>
+		<noscript>
+			<link rel="stylesheet" type="text/css" href="noscript.css" />
+		</noscript> -->
+	</head>
+	<body>
+		<header>
+			<h1>Extra features</h1>
+		</header>
+		<main>
+			<p>This document describes some extra features not present in the original version of the applets
+			and not described in the original <a href="https://doi.org/10.1021/acsomega.2c00560">publication</a>.
+			The extensions are enabled by appending <span class="ext_codeword">?ext</span> to the page URLs.
+			Once applied, all intra-site links are updated to include it,
+			and it can and should be saved in any bookmarks.
+			It is included in the links on this page.</p>
+			
+			<p>When the extensions are not enabled, the applets behave exactly like the original version
+			except for the short paragraph about the extensions.</p>
+			
+			<h2>Decade shift</h2>
+			
+			<p>The decade shift setting can be used to shift the ranges of all sliders and graph axes
+			by integer orders of magnitude. These happen to cancel each other out so that there is no visual change
+			in the graphs other than the numbers on axes and possible data points.
+			Possible values are between &minus;9 and +4 inclusive.
+			This feature was added to allow going to smaller concentrations than 10<sup>&minus;9</sup>&nbsp;mol&nbsp;l<sup>&minus;1</sup>
+			while complicating the applet as little as possible.</p>
+			
+			<h2>Precise iterative search</h2>
+			
+			<p>A calculation method similar to the iterative search, this attempts to converge to a least squares fit
+			without being restricted to the discrete values of the sliders and thus gives much more precise results.
+			In consequence, if the initial values are far from a good fit, arriving to a least squares solution
+			requires a large number of iterations. The algorithm is implemented using recursion,
+			and it fails if it fills the stack before converging.
+			Therefore, it is recommended to use one of the other calculation methods first and then run this.
+			(I might fix this issue in the future.)</p>
+			
+			<p>Once a least squares fit is found, the values of the optimised parameters (but not the slider positions)
+			are adjusted accordingly. The result is displayed in a pop-up dialog.
+			If there are more data points than free parameters, estimates of standard errors and
+			uncertainties with a 95% level of confidence are calculated for each free parameter.
+			The estimates are reasonably accurate only if they are relatively small
+			or, in other words, when relative uncertainties are much less than 100%.
+			It is impossible to give universally applicable guidelines on how small they should be,
+			but generally if relative uncertainties are greater than 100%,
+			the results are probably not worth reporting.</p>
+			
+			<h2>Logarithmic residuals</h2>
+			
+			<p>In the original version, least squares fit always calculated residuals by taking the difference
+			between theoretical and experimental (data point) values. With this option enabled, the differences
+			of their logarithms are calculated instead. This usually produces a visually better fit into data points
+			when using a logarithmic (absolute) vertical scale.
+			Whether this is valid to do should be taken into consideration, however.</p>
+			
+			<h2>Other small fixes</h2>
+			
+			<p>There were some inconsistent axis limits that were left in the original version by mistake.
+			Specifically, the lower limit of the logarithmic vertical axis in competing ligands and competing receptors simulations
+			is 10<sup>&minus;10</sup> instead of 10<sup>&minus;12</sup>.
+			This is fixed when extensions are enabled.</p>
+		</main>
+		<footer>
+			<h2>Simulation pages</h2>
+			<nav id="linkarea">
+				<a href="ligands.htm?ext">Competing ligands simulation</a>
+				<br /><br />
+				<a href="receptors.htm?ext">Competing receptors simulation</a>
+				<br /><br />
+				<a href="ligand.htm?ext">Ligand binding simulation</a>
+				<br /><br />
+				<a href="homodimer.htm?ext">Protein homodimerisation simulation</a>
+			</nav>
+			<div id="credits">
+				Johan P&auml;&auml;kk&ouml;nen, Juha Rouvinen<br />
+				University of Eastern Finland, 2021&ndash;2023<br /><br />
+				GitHub repository: <a href="https://github.com/protsim/protsim">github.com/protsim/protsim</a><br />
+				If you use this in your own research, please cite our paper: <a href="https://doi.org/10.1021/acsomega.2c00560">doi:10.1021/acsomega.2c00560</a><br />
+				Description of extra features: <a href="extensions.htm">extensions</a>
+			</div>
+		</footer>
+	</body>
+</html>

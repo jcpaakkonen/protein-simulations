@@ -1,6 +1,6 @@
 /*
 	PROTEIN THERMODYNAMICS SIMULATIONS
-	Copyright (C) 2021–2022 Johan Pääkkönen, Juha Rouvinen, University of Eastern Finland
+	Copyright (C) 2021–2023 Johan Pääkkönen, Juha Rouvinen, University of Eastern Finland
 	
 	This program is free software; you can redistribute it and/or
 	modify it under the terms of the GNU General Public License
@@ -114,6 +114,7 @@ function preinit(mode)
 		for(i = 0; i < links.length; i++) links[i].href += "?ext";
 		
 		document.getElementById("ext_extmessage").style.display = "none";
+		document.getElementById("ext_desclink").style.display = "initial";
 	}
 	
 	if(!(appmode >= 0)) return;
